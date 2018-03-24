@@ -160,4 +160,17 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_marginTop="57dp">
+        <Button
+            android:id="@+id/openApp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open apps" />
+    </FrameLayout>
+
 </FrameLayout>

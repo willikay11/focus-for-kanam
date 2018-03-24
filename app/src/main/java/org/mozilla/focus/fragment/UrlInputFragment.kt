@@ -6,16 +6,24 @@ package org.mozilla.focus.fragment
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.LabeledIntent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_urlinput.*
 import mozilla.components.utils.ThreadUtils
 import org.mozilla.focus.R
@@ -36,6 +44,7 @@ import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.utils.StatusBarUtils
 import org.mozilla.focus.whatsnew.WhatsNew
 import org.mozilla.focus.widget.InlineAutocompleteEditText
+import java.util.*
 
 /**
  * Fragment for displaying the URL input controls.
@@ -163,7 +172,7 @@ class UrlInputFragment :
             inflater.inflate(R.layout.fragment_urlinput, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        listOf(dismissView, clearView, searchView).forEach { it.setOnClickListener(this) }
+        listOf(dismissView, clearView, searchView, openApp).forEach { it.setOnClickListener(this) }
 
         urlView.setOnFilterListener(this)
         urlView.imeOptions = urlView.imeOptions or ViewUtils.IME_FLAG_NO_PERSONALIZED_LEARNING
@@ -258,6 +267,8 @@ class UrlInputFragment :
 
             R.id.searchView -> onSearch()
 
+            R.id.openApp -> openApps(context!!)
+
             R.id.dismissView -> if (isOverlay) {
                 animateAndDismiss()
             } else {
@@ -294,6 +305,69 @@ class UrlInputFragment :
     private fun clear() {
         urlView.setText("")
         urlView.requestFocus()
+    }
+
+    private fun openApps(context: Context)
+    {
+
+        //version 1
+//        val launchIntent = context.getPackageManager().getLaunchIntentForPackage("org.videolan.vlc")
+
+//        startActivity(launchIntent)
+
+        //version 2
+        val mainIntent = Intent(Intent.ACTION_MAIN, null);
+
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        val pm = context.getPackageManager()
+
+        val apps: MutableList<ResolveInfo> = pm.queryIntentActivities(mainIntent, 0)
+
+        val otherAppIntentList = ArrayList<LabeledIntent>()
+
+        for (app in apps)
+        {
+            val intentToAdd = Intent()
+
+            intentToAdd.setComponent(ComponentName(app.activityInfo.packageName,app.activityInfo.name))
+
+            otherAppIntentList.add(LabeledIntent(intentToAdd, app.activityInfo.packageName, app.loadLabel(pm), app.icon))
+        }
+
+        val extraIntents = otherAppIntentList.toArray(arrayOfNulls<LabeledIntent>(otherAppIntentList.size))
+
+        val chooserIntent = Intent.createChooser(mainIntent, "Apps")
+
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
+
+//        mainIntent.setComponent(ComponentName("com.kiba.kamuyu.tabs","com.example.kamuyu.tabs.splash_screen"));
+//        mainIntent.setComponent(ComponentName("org.videolan.vlc","org.videolan.vlc.gui.tv.StartActivity"));
+//        startActivity(mainIntent);
+
+//        Log.e("string", apps.toString())
+//        val shareIntent = Intent()
+//        shareIntent.action = Intent.ACTION_SEND
+//        shareIntent.putExtra(Intent.EXTRA_TEXT, "ali")
+//        shareIntent.type = "text/plain"
+//
+//
+        startActivity(chooserIntent)
+
+        //Version 3
+//        val pm = context.getPackageManager()
+//
+//        for (app in pm.getInstalledApplications(PackageManager.GET_META_DATA)) {
+//
+//            Log.d("TAG", "Installed package :" + app.packageName);
+//            Log.d("TAG", "Launch Activity :" + pm.getLaunchIntentForPackage(app.packageName))
+//            Log.d("TAG", "Class Name :" + app.name)
+//        }
+
+//        val intent = Intent(Intent.ACTION_MAIN);
+//        intent.setComponent(ComponentName("org.videolan.vlc","org.videolan.vlc.VLCApplication"));
+//        startActivity(intent);
+
     }
 
     override fun onDetach() {
