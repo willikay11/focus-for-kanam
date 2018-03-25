@@ -309,13 +309,6 @@ class UrlInputFragment :
 
     private fun openApps(context: Context)
     {
-
-        //version 1
-//        val launchIntent = context.getPackageManager().getLaunchIntentForPackage("org.videolan.vlc")
-
-//        startActivity(launchIntent)
-
-        //version 2
         val mainIntent = Intent(Intent.ACTION_MAIN, null);
 
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -324,7 +317,7 @@ class UrlInputFragment :
 
         val apps: MutableList<ResolveInfo> = pm.queryIntentActivities(mainIntent, 0)
 
-        val otherAppIntentList = ArrayList<LabeledIntent>()
+        val installedAppsIntentList = ArrayList<LabeledIntent>()
 
         for (app in apps)
         {
@@ -332,41 +325,16 @@ class UrlInputFragment :
 
             intentToAdd.setComponent(ComponentName(app.activityInfo.packageName,app.activityInfo.name))
 
-            otherAppIntentList.add(LabeledIntent(intentToAdd, app.activityInfo.packageName, app.loadLabel(pm), app.icon))
+            installedAppsIntentList.add(LabeledIntent(intentToAdd, app.activityInfo.packageName, app.loadLabel(pm), app.icon))
         }
 
-        val extraIntents = otherAppIntentList.toArray(arrayOfNulls<LabeledIntent>(otherAppIntentList.size))
+        val extraIntents = installedAppsIntentList.toArray(arrayOfNulls<LabeledIntent>(installedAppsIntentList.size))
 
         val chooserIntent = Intent.createChooser(mainIntent, "Apps")
 
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
 
-//        mainIntent.setComponent(ComponentName("com.kiba.kamuyu.tabs","com.example.kamuyu.tabs.splash_screen"));
-//        mainIntent.setComponent(ComponentName("org.videolan.vlc","org.videolan.vlc.gui.tv.StartActivity"));
-//        startActivity(mainIntent);
-
-//        Log.e("string", apps.toString())
-//        val shareIntent = Intent()
-//        shareIntent.action = Intent.ACTION_SEND
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, "ali")
-//        shareIntent.type = "text/plain"
-//
-//
         startActivity(chooserIntent)
-
-        //Version 3
-//        val pm = context.getPackageManager()
-//
-//        for (app in pm.getInstalledApplications(PackageManager.GET_META_DATA)) {
-//
-//            Log.d("TAG", "Installed package :" + app.packageName);
-//            Log.d("TAG", "Launch Activity :" + pm.getLaunchIntentForPackage(app.packageName))
-//            Log.d("TAG", "Class Name :" + app.name)
-//        }
-
-//        val intent = Intent(Intent.ACTION_MAIN);
-//        intent.setComponent(ComponentName("org.videolan.vlc","org.videolan.vlc.VLCApplication"));
-//        startActivity(intent);
 
     }
 
